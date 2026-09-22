@@ -1,15 +1,15 @@
-// ===============================
+// =====================================================
 // LOAD ENVIRONMENT VARIABLES
-// ===============================
+// =====================================================
 
 const dotenv = require("dotenv");
 
 dotenv.config();
 
 
-// ===============================
+// =====================================================
 // IMPORT PACKAGES
-// ===============================
+// =====================================================
 
 const express = require("express");
 const cors = require("cors");
@@ -18,37 +18,30 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 
-// ===============================
+// =====================================================
 // CONFIG
-// ===============================
+// =====================================================
 
 const connectDB = require("./config/db");
 
 
-// ===============================
+// =====================================================
 // ROUTES
-// ===============================
+// =====================================================
 
-const authRoutes =
-    require("./routes/authRoutes");
+const authRoutes = require("./routes/authRoutes");
 
-const userRoutes =
-    require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 
-const projectRoutes =
-    require("./routes/projectRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
-const proposalRoutes =
-    require("./routes/proposalRoutes");
+const proposalRoutes = require("./routes/proposalRoutes");
 
-const milestoneRoutes =
-    require("./routes/milestoneRoutes");
+const milestoneRoutes = require("./routes/milestoneRoutes");
 
-const reviewRoutes =
-    require("./routes/reviewRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
-const adminRoutes =
-    require("./routes/adminRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const notificationRoutes =
     require("./routes/notificationRoutes");
@@ -65,90 +58,117 @@ const fileRoutes =
 const paymentRoutes =
     require("./routes/paymentRoutes");
 
-// ⭐ MESSAGE ROUTES
 const messageRoutes =
     require("./routes/messageRoutes");
 
 
-// ===============================
-// ERROR MIDDLEWARE
-// ===============================
+// =====================================================
+// AI RECOMMENDATION ROUTES
+// =====================================================
 
-const errorHandler =
+const recommendationRoutes =
+    require("./routes/recommendationRoutes");
+
+
+// =====================================================
+// FREELANCER PORTFOLIO ROUTES
+// =====================================================
+
+const portfolioRoutes =
+    require("./routes/portfolioRoutes");
+
+
+// =====================================================
+// PROFILE ROUTES
+// =====================================================
+
+const profileRoutes =
+    require("./routes/profileRoutes");
+
+
+// =====================================================
+// ERROR MIDDLEWARE
+// =====================================================
+
+const errorMiddleware =
     require("./middleware/errorMiddleware");
 
-
-// ===============================
-// RAZORPAY ENV CHECK
-// ===============================
-
-console.log(
-    "Razorpay Key:",
-    process.env.RAZORPAY_KEY_ID
-        ? "Loaded"
-        : "Missing"
-);
+const errorHandler =
+    typeof errorMiddleware === "function"
+        ? errorMiddleware
+        : errorMiddleware?.errorHandler;
 
 
-// ===============================
-// CONNECT MONGODB
-// ===============================
+// =====================================================
+// CONNECT DATABASE
+// =====================================================
 
 connectDB();
 
 
-// ===============================
+// =====================================================
 // CREATE EXPRESS APP
-// ===============================
+// =====================================================
 
 const app = express();
 
 
-// ===============================
+// =====================================================
 // CREATE HTTP SERVER
-// ===============================
+// =====================================================
 
 const server = http.createServer(app);
 
 
-// ===============================
+// =====================================================
 // SOCKET.IO
-// ===============================
+// =====================================================
 
 const io = new Server(server, {
-
     cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
 
+
+// =====================================================
+// GLOBAL MIDDLEWARE
+// =====================================================
+
+app.use(
+    cors({
         origin: "*",
 
         methods: [
             "GET",
-            "POST"
-        ]
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+        ],
 
-    }
-
-});
-
-
-// ===============================
-// MIDDLEWARE
-// ===============================
-
-app.use(cors());
-
-app.use(express.json());
-
-app.use(
-    express.urlencoded({
-        extended: true
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+        ],
     })
 );
 
 
-// ===============================
-// UPLOADED FILES
-// ===============================
+app.use(express.json());
+
+
+app.use(
+    express.urlencoded({
+        extended: true,
+    })
+);
+
+
+// =====================================================
+// UPLOADS
+// =====================================================
 
 app.use(
     "/uploads",
@@ -161,62 +181,219 @@ app.use(
 );
 
 
-// ===============================
-// TEST SERVER
-// ===============================
+// =====================================================
+// TEST API
+// =====================================================
 
-app.get("/", (req, res) => {
+app.get(
+    "/",
+    (req, res) => {
 
-    res.send(
-        "Freelance Platform API Running..."
-    );
+        res.status(200).json({
+            success: true,
 
-});
+            message:
+                "Freelance Platform API Running...",
+        });
+
+    }
+);
 
 
-// ===============================
-// API ROUTES
-// ===============================
+// =====================================================
+// ROUTE VALIDATION
+// =====================================================
+
+console.log("");
+
+console.log(
+    "======================================"
+);
+
+console.log(
+    "ROUTE VALIDATION"
+);
+
+console.log(
+    "======================================"
+);
+
+
+console.log(
+    "authRoutes:",
+    typeof authRoutes
+);
+
+console.log(
+    "userRoutes:",
+    typeof userRoutes
+);
+
+console.log(
+    "projectRoutes:",
+    typeof projectRoutes
+);
+
+console.log(
+    "proposalRoutes:",
+    typeof proposalRoutes
+);
+
+console.log(
+    "milestoneRoutes:",
+    typeof milestoneRoutes
+);
+
+console.log(
+    "reviewRoutes:",
+    typeof reviewRoutes
+);
+
+console.log(
+    "adminRoutes:",
+    typeof adminRoutes
+);
+
+console.log(
+    "notificationRoutes:",
+    typeof notificationRoutes
+);
+
+console.log(
+    "applicationRoutes:",
+    typeof applicationRoutes
+);
+
+console.log(
+    "emailRoutes:",
+    typeof emailRoutes
+);
+
+console.log(
+    "fileRoutes:",
+    typeof fileRoutes
+);
+
+console.log(
+    "paymentRoutes:",
+    typeof paymentRoutes
+);
+
+console.log(
+    "messageRoutes:",
+    typeof messageRoutes
+);
+
+console.log(
+    "recommendationRoutes:",
+    typeof recommendationRoutes
+);
+
+console.log(
+    "portfolioRoutes:",
+    typeof portfolioRoutes
+);
+
+console.log(
+    "profileRoutes:",
+    typeof profileRoutes
+);
+
+console.log(
+    "errorHandler:",
+    typeof errorHandler
+);
+
+console.log(
+    "======================================"
+);
+
+console.log("");
+
+
+// =====================================================
+// AUTH ROUTES
+// =====================================================
 
 app.use(
     "/api/auth",
     authRoutes
 );
 
+
+// =====================================================
+// USER ROUTES
+// =====================================================
+
 app.use(
     "/api/users",
     userRoutes
 );
+
+
+// =====================================================
+// PROJECT ROUTES
+// =====================================================
 
 app.use(
     "/api/projects",
     projectRoutes
 );
 
+
+// =====================================================
+// APPLICATION ROUTES
+// =====================================================
+
 app.use(
     "/api/applications",
     applicationRoutes
 );
+
+
+// =====================================================
+// PROPOSAL ROUTES
+// =====================================================
 
 app.use(
     "/api/proposals",
     proposalRoutes
 );
 
+
+// =====================================================
+// MILESTONE ROUTES
+// =====================================================
+
 app.use(
     "/api/milestones",
     milestoneRoutes
 );
+
+
+// =====================================================
+// REVIEW ROUTES
+// =====================================================
 
 app.use(
     "/api/reviews",
     reviewRoutes
 );
 
+
+// =====================================================
+// ADMIN ROUTES
+// =====================================================
+
 app.use(
     "/api/admin",
     adminRoutes
 );
+
+
+// =====================================================
+// NOTIFICATION ROUTES
+// =====================================================
 
 app.use(
     "/api/notifications",
@@ -224,7 +401,15 @@ app.use(
 );
 
 
-// ⭐ MESSAGE ROUTES
+// =====================================================
+// MESSAGE ROUTES
+// =====================================================
+//
+// POST /api/messages/send
+// GET  /api/messages/conversation/:userId
+// PUT  /api/messages/read/:id
+//
+// =====================================================
 
 app.use(
     "/api/messages",
@@ -232,9 +417,9 @@ app.use(
 );
 
 
-// ===============================
+// =====================================================
 // EMAIL ROUTES
-// ===============================
+// =====================================================
 
 app.use(
     "/api/email",
@@ -242,9 +427,9 @@ app.use(
 );
 
 
-// ===============================
+// =====================================================
 // FILE ROUTES
-// ===============================
+// =====================================================
 
 app.use(
     "/api/files",
@@ -252,9 +437,9 @@ app.use(
 );
 
 
-// ===============================
+// =====================================================
 // PAYMENT ROUTES
-// ===============================
+// =====================================================
 
 app.use(
     "/api/payments",
@@ -262,110 +447,619 @@ app.use(
 );
 
 
-// ===============================
-// SOCKET.IO EVENTS
-// ===============================
+// =====================================================
+// AI RECOMMENDATION ROUTES
+// =====================================================
 
-io.on("connection", (socket) => {
-
-    console.log(
-        "User connected:",
-        socket.id
-    );
+app.use(
+    "/api/recommendations",
+    recommendationRoutes
+);
 
 
-    // ===============================
-    // JOIN CHAT ROOM
-    // ===============================
+// =====================================================
+// FREELANCER PORTFOLIO ROUTES
+// =====================================================
 
-    socket.on(
-        "joinRoom",
-        (roomId) => {
-
-            socket.join(roomId);
-
-            console.log(
-                `User joined room: ${roomId}`
-            );
-
-        }
-    );
+app.use(
+    "/api/freelancer/portfolio",
+    portfolioRoutes
+);
 
 
-    // ===============================
-    // SEND MESSAGE
-    // ===============================
+// =====================================================
+// PROFILE ROUTES
+// =====================================================
 
-    socket.on(
-        "sendMessage",
-        (data) => {
+app.use(
+    "/api/profile",
+    profileRoutes
+);
 
-            io.to(data.roomId).emit(
-                "receiveMessage",
-                {
 
-                    sender: data.sender,
+// =====================================================
+// PAYMENT API INFORMATION
+// =====================================================
 
-                    message: data.message,
+app.get(
+    "/api/payment-info",
+    (req, res) => {
 
-                    roomId: data.roomId,
+        res.status(200).json({
 
-                    createdAt: new Date()
+            success: true,
+
+            message:
+                "Payment API is running",
+
+            endpoints: {
+
+                myPayments:
+                    "GET /api/payments/my",
+
+                clientPayments:
+                    "GET /api/payments/client",
+
+                freelancerPayments:
+                    "GET /api/payments/freelancer",
+
+                createOrder:
+                    "POST /api/payments/create-order",
+
+                verifyPayment:
+                    "POST /api/payments/verify",
+
+                updateStatus:
+                    "PUT /api/payments/:id/status",
+
+                paymentById:
+                    "GET /api/payments/:id"
+
+            }
+
+        });
+
+    }
+);
+
+
+// =====================================================
+// SOCKET.IO
+// REAL-TIME CHAT
+// =====================================================
+
+io.on(
+    "connection",
+    (socket) => {
+
+        console.log("");
+        console.log(
+            "======================================"
+        );
+
+        console.log(
+            "SOCKET USER CONNECTED"
+        );
+
+        console.log(
+            "Socket ID:",
+            socket.id
+        );
+
+        console.log(
+            "======================================"
+        );
+
+
+        // =================================================
+        // JOIN CHAT ROOM
+        // =================================================
+
+        socket.on(
+            "joinRoom",
+            (roomId) => {
+
+                try {
+
+                    if (!roomId) {
+
+                        console.log(
+                            "Socket joinRoom: Room ID missing"
+                        );
+
+                        return;
+
+                    }
+
+
+                    socket.join(roomId);
+
+
+                    console.log(
+                        `Socket ${socket.id} joined room: ${roomId}`
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Socket joinRoom error:",
+                        error
+                    );
 
                 }
-            );
 
-        }
-    );
-
-
-    // ===============================
-    // DISCONNECT
-    // ===============================
-
-    socket.on(
-        "disconnect",
-        () => {
-
-            console.log(
-                "User disconnected:",
-                socket.id
-            );
-
-        }
-    );
-
-});
+            }
+        );
 
 
-// ===============================
+        // =================================================
+        // SEND REAL-TIME MESSAGE
+        // =================================================
+
+        socket.on(
+            "sendMessage",
+            (data) => {
+
+                try {
+
+                    if (!data) {
+
+                        console.log(
+                            "Socket message data missing"
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (!data.roomId) {
+
+                        console.log(
+                            "Socket roomId missing"
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (!data.message) {
+
+                        console.log(
+                            "Socket message missing"
+                        );
+
+                        return;
+
+                    }
+
+
+                    console.log("");
+                    console.log(
+                        "--------------------------------------"
+                    );
+
+                    console.log(
+                        "REAL-TIME MESSAGE"
+                    );
+
+                    console.log(
+                        "Room:",
+                        data.roomId
+                    );
+
+                    console.log(
+                        "Sender:",
+                        data.sender
+                    );
+
+                    console.log(
+                        "Receiver:",
+                        data.receiver
+                    );
+
+                    console.log(
+                        "Message:",
+                        data.message
+                    );
+
+                    console.log(
+                        "--------------------------------------"
+                    );
+
+
+                    // =================================================
+                    // IMPORTANT
+                    // =================================================
+                    //
+                    // socket.to(roomId)
+                    //
+                    // sends the message to OTHER users
+                    // inside the room.
+                    //
+                    // It DOES NOT send back to sender.
+                    //
+                    // This prevents duplicate messages.
+                    //
+                    // =================================================
+
+                    socket
+                        .to(data.roomId)
+                        .emit(
+                            "receiveMessage",
+                            {
+
+                                _id:
+                                    data._id || null,
+
+                                sender:
+                                    data.sender,
+
+                                receiver:
+                                    data.receiver,
+
+                                message:
+                                    data.message,
+
+                                roomId:
+                                    data.roomId,
+
+                                createdAt:
+                                    data.createdAt ||
+                                    new Date(),
+
+                                isRead:
+                                    false,
+
+                            }
+                        );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Socket sendMessage error:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =================================================
+        // DISCONNECT
+        // =================================================
+
+        socket.on(
+            "disconnect",
+            (reason) => {
+
+                console.log("");
+
+                console.log(
+                    "SOCKET USER DISCONNECTED"
+                );
+
+                console.log(
+                    "Socket ID:",
+                    socket.id
+                );
+
+                console.log(
+                    "Reason:",
+                    reason
+                );
+
+                console.log("");
+
+            }
+        );
+
+    }
+);
+
+
+// =====================================================
+// 404 HANDLER
+// =====================================================
+
+app.use(
+    (req, res) => {
+
+        res.status(404).json({
+
+            success: false,
+
+            message:
+                `Route not found: ${req.method} ${req.originalUrl}`,
+
+        });
+
+    }
+);
+
+
+// =====================================================
 // ERROR HANDLER
-// ===============================
+// =====================================================
 
-app.use(errorHandler);
+if (
+    typeof errorHandler === "function"
+) {
+
+    app.use(
+        errorHandler
+    );
+
+} else {
+
+    console.error(
+        "WARNING: errorHandler is not a function."
+    );
 
 
-// ===============================
-// SERVER START
-// ===============================
+    app.use(
+        (err, req, res, next) => {
+
+            console.error(
+                "SERVER ERROR:",
+                err
+            );
+
+
+            res.status(
+                err.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    err.message ||
+                    "Internal Server Error",
+
+            });
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// SERVER PORT
+// =====================================================
 
 const PORT =
     process.env.PORT || 5000;
 
 
-// IMPORTANT:
-// Use server.listen()
-// NOT app.listen()
-// because Socket.IO is attached
-// to the HTTP server.
+// =====================================================
+// START SERVER
+// =====================================================
 
 server.listen(
     PORT,
     () => {
 
+        console.log("");
+
+        console.log(
+            "======================================"
+        );
+
+        console.log(
+            "SKILLFORGE SERVER STARTED"
+        );
+
+        console.log(
+            "======================================"
+        );
+
+
         console.log(
             `Server running on port ${PORT}`
         );
+
+
+        console.log(
+            `API Base URL: http://localhost:${PORT}/api`
+        );
+
+
+        // =================================================
+        // AUTH
+        // =================================================
+
+        console.log(
+            `Auth API: http://localhost:${PORT}/api/auth`
+        );
+
+
+        // =================================================
+        // USERS
+        // =================================================
+
+        console.log(
+            `Users API: http://localhost:${PORT}/api/users`
+        );
+
+
+        // =================================================
+        // PROJECTS
+        // =================================================
+
+        console.log(
+            `Projects API: http://localhost:${PORT}/api/projects`
+        );
+
+
+        console.log(
+            `My Projects API: http://localhost:${PORT}/api/projects/my-projects`
+        );
+
+
+        // =================================================
+        // APPLICATIONS
+        // =================================================
+
+        console.log(
+            `Applications API: http://localhost:${PORT}/api/applications`
+        );
+
+
+        // =================================================
+        // MILESTONES
+        // =================================================
+
+        console.log(
+            `Milestones API: http://localhost:${PORT}/api/milestones`
+        );
+
+
+        // =================================================
+        // REVIEWS
+        // =================================================
+
+        console.log(
+            `Reviews API: http://localhost:${PORT}/api/reviews`
+        );
+
+
+        // =================================================
+        // PAYMENTS
+        // =================================================
+
+        console.log(
+            `Payments API: http://localhost:${PORT}/api/payments`
+        );
+
+
+        console.log(
+            `Payment Info API: http://localhost:${PORT}/api/payment-info`
+        );
+
+
+        console.log(
+            `Create Razorpay Order: http://localhost:${PORT}/api/payments/create-order`
+        );
+
+
+        console.log(
+            `Verify Razorpay Payment: http://localhost:${PORT}/api/payments/verify`
+        );
+
+
+        console.log(
+            `My Payments: http://localhost:${PORT}/api/payments/my`
+        );
+
+
+        console.log(
+            `Client Payments: http://localhost:${PORT}/api/payments/client`
+        );
+
+
+        console.log(
+            `Freelancer Payments: http://localhost:${PORT}/api/payments/freelancer`
+        );
+
+
+        // =================================================
+        // AI RECOMMENDATIONS
+        // =================================================
+
+        console.log(
+            `AI Recommendation API: http://localhost:${PORT}/api/recommendations`
+        );
+
+
+        console.log(
+            `Client AI Recommendation API: http://localhost:${PORT}/api/recommendations/projects/:projectId/freelancers`
+        );
+
+
+        console.log(
+            `Freelancer AI Recommendation API: http://localhost:${PORT}/api/recommendations/freelancer/projects`
+        );
+
+
+        // =================================================
+        // PORTFOLIO
+        // =================================================
+
+        console.log(
+            `Portfolio API: http://localhost:${PORT}/api/freelancer/portfolio`
+        );
+
+
+        // =================================================
+        // PROFILE
+        // =================================================
+
+        console.log(
+            `Profile API: http://localhost:${PORT}/api/profile`
+        );
+
+
+        // =================================================
+        // FILES
+        // =================================================
+
+        console.log(
+            `Files API: http://localhost:${PORT}/api/files`
+        );
+
+
+        // =================================================
+        // NOTIFICATIONS
+        // =================================================
+
+        console.log(
+            `Notifications API: http://localhost:${PORT}/api/notifications`
+        );
+
+
+        // =================================================
+        // MESSAGES
+        // =================================================
+
+        console.log(
+            `Messages API: http://localhost:${PORT}/api/messages`
+        );
+
+
+        console.log(
+            `Send Message: POST http://localhost:${PORT}/api/messages/send`
+        );
+
+
+        console.log(
+            `Get Conversation: GET http://localhost:${PORT}/api/messages/conversation/:userId`
+        );
+
+
+        console.log(
+            `Mark Message Read: PUT http://localhost:${PORT}/api/messages/read/:id`
+        );
+
+
+        // =================================================
+        // SOCKET
+        // =================================================
+
+        console.log(
+            `Socket.IO: http://localhost:${PORT}`
+        );
+
+
+        console.log(
+            "======================================"
+        );
+
+        console.log("");
 
     }
 );

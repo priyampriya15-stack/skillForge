@@ -2,43 +2,72 @@ const mongoose = require("mongoose");
 
 const projectSchema = new mongoose.Schema(
     {
+        // ================================
+        // CLIENT
+        // ================================
         client: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true
         },
 
+        // ================================
+        // PROJECT TITLE
+        // ================================
         title: {
             type: String,
             required: true,
             trim: true
         },
 
+        // ================================
+        // PROJECT DESCRIPTION
+        // ================================
         description: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
 
+        // ================================
+        // REQUIRED SKILLS
+        // Example: ["React", "Node.js", "MongoDB"]
+        // ================================
         skills: {
             type: [String],
-            required: true
+            required: true,
+            default: []
         },
 
+        // ================================
+        // CATEGORY
+        // ================================
         category: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
 
+        // ================================
+        // BUDGET
+        // ================================
         budget: {
             type: Number,
-            required: true
+            required: true,
+            min: 1
         },
 
+        // ================================
+        // DEADLINE
+        // ================================
         deadline: {
             type: Date,
             required: true
         },
 
+        // ================================
+        // PROJECT STATUS
+        // ================================
         status: {
             type: String,
             enum: [
@@ -50,6 +79,9 @@ const projectSchema = new mongoose.Schema(
             default: "open"
         },
 
+        // ================================
+        // SELECTED FREELANCER
+        // ================================
         selectedFreelancer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

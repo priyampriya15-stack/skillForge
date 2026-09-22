@@ -7,6 +7,14 @@ const Project = require("../models/Project");
 // =====================================================
 const createProject = async (req, res) => {
     try {
+        // =====================================================
+        // DEBUG - CHECK FRONTEND REQUEST BODY
+        // =====================================================
+        console.log("======================================");
+        console.log("CREATE PROJECT REQUEST BODY:");
+        console.log(req.body);
+        console.log("======================================");
+
         const {
             title,
             description,
@@ -16,31 +24,121 @@ const createProject = async (req, res) => {
             deadline
         } = req.body;
 
-        // Validate fields
+        // =====================================================
+        // VALIDATE REQUIRED FIELDS
+        // =====================================================
         if (
             !title ||
+            !title.trim() ||
             !description ||
-            !skills ||
+            !description.trim() ||
             !category ||
-            !budget ||
+            !category.trim() ||
+            budget === undefined ||
+            budget === null ||
+            budget === "" ||
             !deadline
         ) {
+            console.log("PROJECT VALIDATION FAILED:", {
+                title,
+                description,
+                skills,
+                category,
+                budget,
+                deadline
+            });
+
             return res.status(400).json({
                 success: false,
-                message: "All fields are required"
+                message: "Title, description, category, budget and deadline are required"
             });
         }
 
+        // =====================================================
+        // VALIDATE SKILLS
+        // =====================================================
+        if (!Array.isArray(skills) || skills.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one skill is required"
+            });
+        }
+
+        // =====================================================
+        // CLEAN SKILLS
+        // =====================================================
+        const cleanedSkills = skills
+            .map((skill) => String(skill).trim())
+            .filter(Boolean);
+
+        if (cleanedSkills.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one valid skill is required"
+            });
+        }
+
+        // =====================================================
+        // VALIDATE BUDGET
+        // =====================================================
+        const numericBudget = Number(budget);
+
+        if (Number.isNaN(numericBudget) || numericBudget <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Budget must be greater than 0"
+            });
+        }
+
+        // =====================================================
+        // VALIDATE DEADLINE
+        // =====================================================
+        const deadlineDate = new Date(deadline);
+
+        if (Number.isNaN(deadlineDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid deadline"
+            });
+        }
+
+        // =====================================================
+        // CHECK AUTHENTICATED USER
+        // =====================================================
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({
+                success: false,
+                message: "User authentication required"
+            });
+        }
+
+        // =====================================================
+        // CREATE PROJECT
+        // =====================================================
         const project = await Project.create({
             client: req.user._id,
-            title,
-            description,
-            skills,
-            category,
-            budget,
-            deadline
+
+            title: title.trim(),
+
+            description: description.trim(),
+
+            skills: cleanedSkills,
+
+            category: category.trim(),
+
+            budget: numericBudget,
+
+            deadline: deadlineDate,
+
+            status: "open"
         });
 
+        console.log("PROJECT CREATED SUCCESSFULLY:");
+        console.log(project);
+
+        // =====================================================
+        // RESPONSE
+        // =====================================================
         return res.status(201).json({
             success: true,
             message: "Project created successfully",
@@ -137,6 +235,54 @@ const getProjects = async (req, res) => {
 
 
 // =====================================================
+// GET MY PROJECTS
+// GET /api/projects/my-projects
+// =====================================================
+const getMyProjects = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+
+        // Check authentication
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User authentication required"
+            });
+        }
+
+        const projects = await Project.find({
+            client: userId
+        })
+            .populate(
+                "client",
+                "name email profileImage"
+            )
+            .populate(
+                "selectedFreelancer",
+                "name email"
+            )
+            .sort({
+                createdAt: -1
+            });
+
+        return res.status(200).json({
+            success: true,
+            count: projects.length,
+            projects
+        });
+
+    } catch (error) {
+        console.log("Get My Projects Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+// =====================================================
 // GET SINGLE PROJECT
 // GET /api/projects/:id
 // =====================================================
@@ -164,6 +310,7 @@ const getProjectById = async (req, res) => {
                 "name email"
             );
 
+        // Project not found
         if (!project) {
             return res.status(404).json({
                 success: false,
@@ -203,6 +350,7 @@ const updateProject = async (req, res) => {
             });
         }
 
+        // Find project
         const project = await Project.findById(id);
 
         if (!project) {
@@ -219,7 +367,8 @@ const updateProject = async (req, res) => {
         ) {
             return res.status(403).json({
                 success: false,
-                message: "You do not have permission to update this project"
+                message:
+                    "You do not have permission to update this project"
             });
         }
 
@@ -233,31 +382,67 @@ const updateProject = async (req, res) => {
             status
         } = req.body;
 
-        // Update only provided fields
+        // Update title
         if (title !== undefined) {
-            project.title = title;
+            project.title = title.trim();
         }
 
+        // Update description
         if (description !== undefined) {
-            project.description = description;
+            project.description = description.trim();
         }
 
+        // Update skills
         if (skills !== undefined) {
-            project.skills = skills;
+            if (!Array.isArray(skills)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Skills must be an array"
+                });
+            }
+
+            project.skills = skills
+                .map((skill) => String(skill).trim())
+                .filter(Boolean);
         }
 
+        // Update category
         if (category !== undefined) {
-            project.category = category;
+            project.category = category.trim();
         }
 
+        // Update budget
         if (budget !== undefined) {
-            project.budget = budget;
+            const numericBudget = Number(budget);
+
+            if (
+                Number.isNaN(numericBudget) ||
+                numericBudget <= 0
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Budget must be greater than 0"
+                });
+            }
+
+            project.budget = numericBudget;
         }
 
+        // Update deadline
         if (deadline !== undefined) {
-            project.deadline = deadline;
+            const deadlineDate = new Date(deadline);
+
+            if (Number.isNaN(deadlineDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid deadline"
+                });
+            }
+
+            project.deadline = deadlineDate;
         }
 
+        // Update status
         if (status !== undefined) {
             project.status = status;
         }
@@ -297,6 +482,7 @@ const deleteProject = async (req, res) => {
             });
         }
 
+        // Find project
         const project = await Project.findById(id);
 
         if (!project) {
@@ -313,10 +499,12 @@ const deleteProject = async (req, res) => {
         ) {
             return res.status(403).json({
                 success: false,
-                message: "You do not have permission to delete this project"
+                message:
+                    "You do not have permission to delete this project"
             });
         }
 
+        // Delete project
         await project.deleteOne();
 
         return res.status(200).json({
@@ -341,6 +529,7 @@ const deleteProject = async (req, res) => {
 module.exports = {
     createProject,
     getProjects,
+    getMyProjects,
     getProjectById,
     updateProject,
     deleteProject

@@ -12,11 +12,23 @@ const {
 
 const router = express.Router();
 
+
+// =====================================================
+// CREATE MILESTONE FOR PROJECT
+// POST /api/milestones/project/:projectId
+// =====================================================
+
 router.post(
     "/project/:projectId",
     protect,
     createMilestone
 );
+
+
+// =====================================================
+// GET ALL MILESTONES FOR PROJECT
+// GET /api/milestones/project/:projectId
+// =====================================================
 
 router.get(
     "/project/:projectId",
@@ -24,10 +36,21 @@ router.get(
     getMilestones
 );
 
+
+// =====================================================
+// UPDATE MILESTONE
+// PUT /api/milestones/:id
+// =====================================================
+
 router.put(
     "/:id",
     protect,
     updateMilestone
 );
+
+
+// =====================================================
+// EXPORT ROUTER
+// =====================================================
 
 module.exports = router;

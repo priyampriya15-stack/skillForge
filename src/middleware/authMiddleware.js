@@ -5,6 +5,7 @@ const protect = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
+        // Check Authorization header
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({
                 success: false,
@@ -12,13 +13,16 @@ const protect = async (req, res, next) => {
             });
         }
 
+        // Get token
         const token = authHeader.split(" ")[1];
 
+        // Verify JWT
         const decoded = jwt.verify(
             token,
             process.env.JWT_SECRET
         );
 
+        // Find logged-in user
         const user = await User.findById(decoded.id)
             .select("-password");
 
@@ -29,11 +33,13 @@ const protect = async (req, res, next) => {
             });
         }
 
+        // Attach user to request
         req.user = user;
 
         next();
 
     } catch (error) {
+        console.error("AUTH ERROR:", error.message);
 
         return res.status(401).json({
             success: false,
@@ -43,8 +49,18 @@ const protect = async (req, res, next) => {
 };
 
 
+// ==========================================
+// ROLE AUTHORIZATION
+// ==========================================
 const authorize = (...roles) => {
     return (req, res, next) => {
+
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated"
+            });
+        }
 
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({

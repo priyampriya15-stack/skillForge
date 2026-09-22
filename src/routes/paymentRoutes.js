@@ -1,5 +1,12 @@
 const express = require("express");
 
+const router = express.Router();
+
+
+// =====================================================
+// PAYMENT CONTROLLER
+// =====================================================
+
 const {
     createRazorpayOrder,
     verifyRazorpayPayment,
@@ -8,38 +15,21 @@ const {
     updatePaymentStatus
 } = require("../controllers/paymentController");
 
+
+// =====================================================
+// AUTH MIDDLEWARE
+// =====================================================
+
 const {
     protect
 } = require("../middleware/authMiddleware");
 
-const router = express.Router();
 
-
-// ========================================
-// CREATE RAZORPAY ORDER
-// ========================================
-
-router.post(
-    "/create-order",
-    protect,
-    createRazorpayOrder
-);
-
-
-// ========================================
-// VERIFY RAZORPAY PAYMENT
-// ========================================
-
-router.post(
-    "/verify",
-    protect,
-    verifyRazorpayPayment
-);
-
-
-// ========================================
+// =====================================================
 // GET MY PAYMENTS
-// ========================================
+// =====================================================
+// GET /api/payments/my
+// =====================================================
 
 router.get(
     "/my",
@@ -48,9 +38,83 @@ router.get(
 );
 
 
-// ========================================
-// GET SINGLE PAYMENT
-// ========================================
+// =====================================================
+// GET CLIENT PAYMENTS
+// =====================================================
+// GET /api/payments/client
+// =====================================================
+
+router.get(
+    "/client",
+    protect,
+    getMyPayments
+);
+
+
+// =====================================================
+// GET FREELANCER PAYMENTS
+// =====================================================
+// GET /api/payments/freelancer
+// =====================================================
+
+router.get(
+    "/freelancer",
+    protect,
+    getMyPayments
+);
+
+
+// =====================================================
+// CREATE RAZORPAY ORDER
+// =====================================================
+// POST /api/payments/create-order
+//
+// Body:
+//
+// {
+//     "project": "PROJECT_ID"
+// }
+//
+// =====================================================
+
+router.post(
+    "/create-order",
+    protect,
+    createRazorpayOrder
+);
+
+
+// =====================================================
+// VERIFY RAZORPAY PAYMENT
+// =====================================================
+// POST /api/payments/verify
+// =====================================================
+
+router.post(
+    "/verify",
+    protect,
+    verifyRazorpayPayment
+);
+
+
+// =====================================================
+// UPDATE PAYMENT STATUS
+// =====================================================
+// PUT /api/payments/:id/status
+// =====================================================
+
+router.put(
+    "/:id/status",
+    protect,
+    updatePaymentStatus
+);
+
+
+// =====================================================
+// GET PAYMENT BY ID
+// =====================================================
+// GET /api/payments/:id
+// =====================================================
 
 router.get(
     "/:id",
@@ -59,15 +123,8 @@ router.get(
 );
 
 
-// ========================================
-// UPDATE PAYMENT STATUS
-// ========================================
-
-router.put(
-    "/:id/status",
-    protect,
-    updatePaymentStatus
-);
-
+// =====================================================
+// EXPORT
+// =====================================================
 
 module.exports = router;

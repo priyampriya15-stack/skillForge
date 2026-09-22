@@ -1,82 +1,91 @@
-
 const express = require("express");
-
 const router = express.Router();
 
-// =====================================================
-// IMPORT CONTROLLER
-// =====================================================
-
-const {
-    createProject,
-    getProjects,
-    getProjectById,
-    updateProject,
-    deleteProject
-} = require("../controllers/projectController");
-
-// =====================================================
-// IMPORT MIDDLEWARE
-// =====================================================
-
-// Change this path/name only if your auth middleware
-// has a different filename or exported function.
+const projectController = require("../controllers/projectController");
 const { protect } = require("../middleware/authMiddleware");
 
+// =====================================================
+// CHECK CONTROLLER FUNCTIONS
+// =====================================================
+
+console.log("======================================");
+console.log("PROJECT CONTROLLER CHECK");
+console.log("======================================");
+
+console.log("createProject:", typeof projectController.createProject);
+console.log("getProjects:", typeof projectController.getProjects);
+console.log("getMyProjects:", typeof projectController.getMyProjects);
+console.log("getProjectById:", typeof projectController.getProjectById);
+console.log("updateProject:", typeof projectController.updateProject);
+console.log("deleteProject:", typeof projectController.deleteProject);
+
+console.log("======================================");
 
 // =====================================================
-// PROJECT ROUTES
-// =====================================================
-
-// GET ALL PROJECTS
-// GET /api/projects
-router.get(
-    "/",
-    getProjects
-);
-
-
-// GET SINGLE PROJECT
-// GET /api/projects/:id
-router.get(
-    "/:id",
-    getProjectById
-);
-
-
 // CREATE PROJECT
 // POST /api/projects
-// Client only
+// =====================================================
+
 router.post(
     "/",
     protect,
-    createProject
+    projectController.createProject
 );
 
+// =====================================================
+// GET ALL PROJECTS
+// GET /api/projects
+// =====================================================
 
+router.get(
+    "/",
+    protect,
+    projectController.getProjects
+);
+
+// =====================================================
+// GET MY PROJECTS
+// IMPORTANT: BEFORE /:id
+// GET /api/projects/my-projects
+// =====================================================
+
+router.get(
+    "/my-projects",
+    protect,
+    projectController.getMyProjects
+);
+
+// =====================================================
+// GET SINGLE PROJECT
+// GET /api/projects/:id
+// =====================================================
+
+router.get(
+    "/:id",
+    protect,
+    projectController.getProjectById
+);
+
+// =====================================================
 // UPDATE PROJECT
 // PUT /api/projects/:id
-// Client only
+// =====================================================
+
 router.put(
     "/:id",
     protect,
-    updateProject
+    projectController.updateProject
 );
 
-
+// =====================================================
 // DELETE PROJECT
 // DELETE /api/projects/:id
-// Client only
+// =====================================================
+
 router.delete(
     "/:id",
     protect,
-    deleteProject
+    projectController.deleteProject
 );
 
-
-// =====================================================
-// EXPORT ROUTER
-// =====================================================
-
 module.exports = router;
-
