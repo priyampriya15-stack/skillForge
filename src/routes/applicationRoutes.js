@@ -1,5 +1,7 @@
 const express = require("express");
 
+const router = express.Router();
+
 const {
     applyProject,
     getMyApplications,
@@ -7,62 +9,53 @@ const {
     updateApplicationStatus
 } = require("../controllers/applicationController");
 
-const {
-    protect,
-    authorize
-} = require("../middleware/authMiddleware");
-
-const router = express.Router();
+const { protect } = require("../middleware/authMiddleware");
 
 
-// ==========================================
-// Freelancer applies for project
-// POST /api/applications/project/:projectId
-// ==========================================
+// =====================================================
+// FREELANCER - APPLY FOR PROJECT
+// POST /api/applications/:projectId
+// =====================================================
 
 router.post(
-    "/project/:projectId",
+    "/:projectId",
     protect,
-    authorize("freelancer"),
     applyProject
 );
 
 
-// ==========================================
-// Freelancer views own applications
-// GET /api/applications/my
-// ==========================================
+// =====================================================
+// FREELANCER - GET MY APPLICATIONS
+// GET /api/applications/my-applications
+// =====================================================
 
 router.get(
-    "/my",
+    "/my-applications",
     protect,
-    authorize("freelancer"),
     getMyApplications
 );
 
 
-// ==========================================
-// Client views project applications
+// =====================================================
+// CLIENT - GET APPLICATIONS FOR PROJECT
 // GET /api/applications/project/:projectId
-// ==========================================
+// =====================================================
 
 router.get(
     "/project/:projectId",
     protect,
-    authorize("client"),
     getProjectApplications
 );
 
 
-// ==========================================
-// Client accepts / rejects application
+// =====================================================
+// CLIENT - ACCEPT / REJECT APPLICATION
 // PUT /api/applications/:id/status
-// ==========================================
+// =====================================================
 
 router.put(
     "/:id/status",
     protect,
-    authorize("client"),
     updateApplicationStatus
 );
 

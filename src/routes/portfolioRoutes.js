@@ -1,9 +1,9 @@
 const express = require("express");
 
 const {
-    getMyProfile,
-    updateMyProfile
-} = require("../controllers/profileController");
+    getPortfolio,
+    updatePortfolio
+} = require("../controllers/portfolioController");
 
 const {
     protect
@@ -11,16 +11,18 @@ const {
 
 const router = express.Router();
 
+// GET freelancer portfolio
 router.get(
-    "/me",
+    "/",
     protect,
-    getMyProfile
+    getPortfolio
 );
 
+// UPDATE freelancer portfolio
 router.put(
-    "/me",
+    "/",
     protect,
-    updateMyProfile
+    updatePortfolio
 );
 
 module.exports = router;

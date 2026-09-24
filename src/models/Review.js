@@ -5,35 +5,50 @@ const reviewSchema = new mongoose.Schema(
         project: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Project",
-            required: true
+            required: true,
         },
 
-        reviewer: {
+        client: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
         },
 
-        reviewee: {
+        freelancer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
         },
 
         rating: {
             type: Number,
             required: true,
             min: 1,
-            max: 5
+            max: 5,
         },
 
         comment: {
             type: String,
-            default: ""
-        }
+            required: true,
+            trim: true,
+            minlength: 3,
+            maxlength: 1000,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
+    }
+);
+
+// One client can review one freelancer only once for a project
+reviewSchema.index(
+    {
+        project: 1,
+        client: 1,
+        freelancer: 1,
+    },
+    {
+        unique: true,
     }
 );
 

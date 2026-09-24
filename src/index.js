@@ -1,4 +1,8 @@
 // =====================================================
+// SKILLFORGE BACKEND - INDEX.JS
+// =====================================================
+
+// =====================================================
 // LOAD ENVIRONMENT VARIABLES
 // =====================================================
 
@@ -19,7 +23,7 @@ const { Server } = require("socket.io");
 
 
 // =====================================================
-// CONFIG
+// DATABASE
 // =====================================================
 
 const connectDB = require("./config/db");
@@ -84,6 +88,22 @@ const portfolioRoutes =
 
 const profileRoutes =
     require("./routes/profileRoutes");
+
+
+// =====================================================
+// SKILL ROUTES
+// =====================================================
+
+const skillRoutes =
+    require("./routes/skillRoutes");
+
+
+// =====================================================
+// COURSE ROUTES
+// =====================================================
+
+const courseRoutes =
+    require("./routes/courseRoutes");
 
 
 // =====================================================
@@ -182,7 +202,7 @@ app.use(
 
 
 // =====================================================
-// TEST API
+// ROOT / TEST API
 // =====================================================
 
 app.get(
@@ -190,10 +210,12 @@ app.get(
     (req, res) => {
 
         res.status(200).json({
+
             success: true,
 
             message:
-                "Freelance Platform API Running...",
+                "SkillForge Freelance Platform API Running...",
+
         });
 
     }
@@ -211,7 +233,7 @@ console.log(
 );
 
 console.log(
-    "ROUTE VALIDATION"
+    "SKILLFORGE ROUTE VALIDATION"
 );
 
 console.log(
@@ -300,9 +322,20 @@ console.log(
 );
 
 console.log(
+    "skillRoutes:",
+    typeof skillRoutes
+);
+
+console.log(
+    "courseRoutes:",
+    typeof courseRoutes
+);
+
+console.log(
     "errorHandler:",
     typeof errorHandler
 );
+
 
 console.log(
     "======================================"
@@ -404,12 +437,12 @@ app.use(
 // =====================================================
 // MESSAGE ROUTES
 // =====================================================
-//
-// POST /api/messages/send
-// GET  /api/messages/conversation/:userId
-// PUT  /api/messages/read/:id
-//
-// =====================================================
+
+/*
+POST /api/messages/send
+GET  /api/messages/conversation/:userId
+PUT  /api/messages/read/:id
+*/
 
 app.use(
     "/api/messages",
@@ -478,6 +511,42 @@ app.use(
 
 
 // =====================================================
+// SKILL ROUTES
+// =====================================================
+
+/*
+GET    /api/skills
+GET    /api/skills/:id
+POST   /api/skills
+PUT    /api/skills/:id
+DELETE /api/skills/:id
+*/
+
+app.use(
+    "/api/skills",
+    skillRoutes
+);
+
+
+// =====================================================
+// COURSE ROUTES
+// =====================================================
+
+/*
+GET    /api/courses
+GET    /api/courses/:id
+POST   /api/courses
+PUT    /api/courses/:id
+DELETE /api/courses/:id
+*/
+
+app.use(
+    "/api/courses",
+    courseRoutes
+);
+
+
+// =====================================================
 // PAYMENT API INFORMATION
 // =====================================================
 
@@ -513,9 +582,89 @@ app.get(
                     "PUT /api/payments/:id/status",
 
                 paymentById:
-                    "GET /api/payments/:id"
+                    "GET /api/payments/:id",
 
-            }
+            },
+
+        });
+
+    }
+);
+
+
+// =====================================================
+// SKILLS API INFORMATION
+// =====================================================
+
+app.get(
+    "/api/skills-info",
+    (req, res) => {
+
+        res.status(200).json({
+
+            success: true,
+
+            message:
+                "Skill API is running",
+
+            endpoints: {
+
+                allSkills:
+                    "GET /api/skills",
+
+                skillById:
+                    "GET /api/skills/:id",
+
+                createSkill:
+                    "POST /api/skills",
+
+                updateSkill:
+                    "PUT /api/skills/:id",
+
+                deleteSkill:
+                    "DELETE /api/skills/:id",
+
+            },
+
+        });
+
+    }
+);
+
+
+// =====================================================
+// COURSES API INFORMATION
+// =====================================================
+
+app.get(
+    "/api/courses-info",
+    (req, res) => {
+
+        res.status(200).json({
+
+            success: true,
+
+            message:
+                "Course API is running",
+
+            endpoints: {
+
+                allCourses:
+                    "GET /api/courses",
+
+                courseById:
+                    "GET /api/courses/:id",
+
+                createCourse:
+                    "POST /api/courses",
+
+                updateCourse:
+                    "PUT /api/courses/:id",
+
+                deleteCourse:
+                    "DELETE /api/courses/:id",
+
+            },
 
         });
 
@@ -533,6 +682,7 @@ io.on(
     (socket) => {
 
         console.log("");
+
         console.log(
             "======================================"
         );
@@ -636,6 +786,7 @@ io.on(
 
 
                     console.log("");
+
                     console.log(
                         "--------------------------------------"
                     );
@@ -668,21 +819,6 @@ io.on(
                         "--------------------------------------"
                     );
 
-
-                    // =================================================
-                    // IMPORTANT
-                    // =================================================
-                    //
-                    // socket.to(roomId)
-                    //
-                    // sends the message to OTHER users
-                    // inside the room.
-                    //
-                    // It DOES NOT send back to sender.
-                    //
-                    // This prevents duplicate messages.
-                    //
-                    // =================================================
 
                     socket
                         .to(data.roomId)
@@ -895,7 +1031,6 @@ server.listen(
             `Projects API: http://localhost:${PORT}/api/projects`
         );
 
-
         console.log(
             `My Projects API: http://localhost:${PORT}/api/projects/my-projects`
         );
@@ -907,6 +1042,15 @@ server.listen(
 
         console.log(
             `Applications API: http://localhost:${PORT}/api/applications`
+        );
+
+
+        // =================================================
+        // PROPOSALS
+        // =================================================
+
+        console.log(
+            `Proposals API: http://localhost:${PORT}/api/proposals`
         );
 
 
@@ -936,31 +1080,25 @@ server.listen(
             `Payments API: http://localhost:${PORT}/api/payments`
         );
 
-
         console.log(
             `Payment Info API: http://localhost:${PORT}/api/payment-info`
         );
-
 
         console.log(
             `Create Razorpay Order: http://localhost:${PORT}/api/payments/create-order`
         );
 
-
         console.log(
             `Verify Razorpay Payment: http://localhost:${PORT}/api/payments/verify`
         );
-
 
         console.log(
             `My Payments: http://localhost:${PORT}/api/payments/my`
         );
 
-
         console.log(
             `Client Payments: http://localhost:${PORT}/api/payments/client`
         );
-
 
         console.log(
             `Freelancer Payments: http://localhost:${PORT}/api/payments/freelancer`
@@ -975,11 +1113,9 @@ server.listen(
             `AI Recommendation API: http://localhost:${PORT}/api/recommendations`
         );
 
-
         console.log(
             `Client AI Recommendation API: http://localhost:${PORT}/api/recommendations/projects/:projectId/freelancers`
         );
-
 
         console.log(
             `Freelancer AI Recommendation API: http://localhost:${PORT}/api/recommendations/freelancer/projects`
@@ -1001,6 +1137,32 @@ server.listen(
 
         console.log(
             `Profile API: http://localhost:${PORT}/api/profile`
+        );
+
+
+        // =================================================
+        // SKILLS
+        // =================================================
+
+        console.log(
+            `Skills API: http://localhost:${PORT}/api/skills`
+        );
+
+        console.log(
+            `Skills Info API: http://localhost:${PORT}/api/skills-info`
+        );
+
+
+        // =================================================
+        // COURSES
+        // =================================================
+
+        console.log(
+            `Courses API: http://localhost:${PORT}/api/courses`
+        );
+
+        console.log(
+            `Courses Info API: http://localhost:${PORT}/api/courses-info`
         );
 
 
@@ -1030,16 +1192,13 @@ server.listen(
             `Messages API: http://localhost:${PORT}/api/messages`
         );
 
-
         console.log(
             `Send Message: POST http://localhost:${PORT}/api/messages/send`
         );
 
-
         console.log(
             `Get Conversation: GET http://localhost:${PORT}/api/messages/conversation/:userId`
         );
-
 
         console.log(
             `Mark Message Read: PUT http://localhost:${PORT}/api/messages/read/:id`
