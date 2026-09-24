@@ -13,3 +13,4 @@ yarn-error.log*
 .DS_Store
 uploads/
 src/uploads/
+.env.backup
